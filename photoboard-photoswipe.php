@@ -5,7 +5,7 @@
  * Plugin URI: https://github.com/cferdinandi/photoboard-photoswipe
  * GitHub Plugin URI: https://github.com/cferdinandi/photoboard-photoswipe
  * Description: A WordPress plugin for <a href="https://github.com/dimsemenov/PhotoSwipe">PhotoSwipe image galleries</a>.
- * Version: 1.1.0
+ * Version: 1.2.0
  * Author: Chris Ferdinandi
  * Author URI: http://gomakethings.com
  * License: All rights reserved
@@ -116,7 +116,8 @@
 		}
 
 		// Generate gallery
-		$gallery = '<div data-masonry data-photoswipe data-pswp-uid="' . $instance . '" ' . stripslashes( $options['wrapper_atts'] ) . '>';
+		$count = count( $attachments );
+		$gallery = '<div data-masonry data-photoswipe data-pswp-uid="' . $instance . '" ' . stripslashes( $options['wrapper_atts'] ) . ' data-photoswipe-count="' . $count . '">';
 		foreach ( $attachments as $id => $attachment ) {
 
 			// Image data
@@ -135,7 +136,7 @@
 
 			$gallery .=
 				'<a data-masonry-content data-size="' . $img_full[1] . 'x' . $img_full[2] . '" data-med="' . $img_medium[0] . '" data-med-size="' . $img_medium[1] . 'x' . $img_medium[2] . '" href="' . $img_full[0] . '" ' . stripslashes( $options['link_atts'] ) . '>' .
-					$img .
+					( in_array( $count, array( 1, 2 ) ) ? '<img src="' . $img_full[0] . '" class="' . $options['img_atts'] . '">' : $img ) .
 					$figure .
 				'</a>';
 
