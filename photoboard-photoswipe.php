@@ -5,7 +5,7 @@
  * Plugin URI: https://github.com/cferdinandi/photoboard-photoswipe
  * GitHub Plugin URI: https://github.com/cferdinandi/photoboard-photoswipe
  * Description: A WordPress plugin for <a href="https://github.com/dimsemenov/PhotoSwipe">PhotoSwipe image galleries</a>.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: Chris Ferdinandi
  * Author URI: http://gomakethings.com
  * License: All rights reserved
@@ -16,7 +16,7 @@
 
 	/**
 	 * Override default [gallery] shortcode
-	 * @link http://robido.com/wordpress/wordpress-gallery-filter-to-modify-the-html-output-of-the-default-gallery-shortcode-and-style/address>]>
+	 * @link http://robido.com/wordpress/wordpress-gallery-filter-to-modify-the-html-output-of-the-default-gallery-shortcode-and-style/address
 	 * @param  String $output Default [gallery] output
 	 * @param  Array  $attr   Settings and options
 	 * @return String         New markup
@@ -28,6 +28,11 @@
 
 		// Get user options
 		$options = photoboard_photoswipe_get_theme_options();
+
+		// Get user group and security
+		$current_user = wp_get_current_user();
+		$group = current_user_can( 'edit_themes' ) ? false : get_user_meta( $current_user->ID, 'photoboard_user_group', true );
+		$has_security = function_exists( 'photoboard_restrict_photo_access_add_fields' );
 
 		// Gallery instance counter
 		static $instance = 0;
@@ -111,7 +116,6 @@
 		}
 
 		// Generate gallery
-		// @todo Add user-configurable options
 		$gallery = '<div data-masonry data-photoswipe data-pswp-uid="' . $instance . '" ' . stripslashes( $options['wrapper_atts'] ) . '>';
 		foreach ( $attachments as $id => $attachment ) {
 
@@ -121,6 +125,13 @@
 			$img = wp_get_attachment_image( $id, 'medium', false, array( 'class' => stripslashes( $options['img_atts'] ) ) );
 			$caption = $attachment->post_excerpt;
 			$figure = empty( $caption ) ? '' : '<figure ' . stripslashes( $options['caption_atts'] ) . '>' . $caption . '</figure>';
+			$access = get_post_meta( $attachment->ID, 'photoboard_media_user_groups', true );
+
+			// Restrict photo visibility by group
+			if ( $has_security && is_array( $access ) && !empty( $access ) && !empty( $group ) ) {
+				if ( !array_key_exists( $group, $access ) ) continue; // If the access group has no setting
+				if ( $access[$group] !== 'on' ) continue; // If it does but the setting isn't "on"
+			}
 
 			$gallery .=
 				'<a data-masonry-content data-size="' . $img_full[1] . 'x' . $img_full[2] . '" data-med="' . $img_medium[0] . '" data-med-size="' . $img_medium[1] . 'x' . $img_medium[2] . '" href="' . $img_full[0] . '" ' . stripslashes( $options['link_atts'] ) . '>' .
