@@ -1,5 +1,5 @@
 /*!
- * photoswipe v1.0.0: PhotoSwipe.js by Dmitry Semenov
+ * photoswipe v4.1.0: PhotoSwipe.js by Dmitry Semenov
  * (c) 2016 Dmitry Semenov
  * MIT License
  * https://github.com/dimsemenov/PhotoSwipe
